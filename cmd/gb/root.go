@@ -7,8 +7,11 @@ import (
     "github.com/rcoleworld/gb/pkg/gb"
 )
 
-var uri string
-var numberOfRequests int
+
+var ( 
+    uri string
+    numberOfRequests int
+)
 
 var rootCmd = &cobra.Command {
     Use: "gb [OPTIONS]",
