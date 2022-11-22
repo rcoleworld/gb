@@ -14,14 +14,14 @@ var (
 )
 
 var rootCmd = &cobra.Command {
-    Use: "gb [OPTIONS]",
+    Use: "gb [url] [OPTIONS]",
     Short: "gb - a benchmarking tool similar to ab, written in golang",
     Long: "gb - a benchmarking tool similar to ab, written in golang (long version)",
     Args: cobra.ExactArgs(1),
     Run: func(cmd *cobra.Command, args []string) {
         requestsFlag, _ := cmd.Flags().GetInt(gb.RequestsFlag)
-        uri := args[0]
-        req, err :=  gb.NewGbHttpReq(uri, gb.Get, nil)
+        url := args[0]
+        req, err :=  gb.NewGbHttpReq(url, gb.Get, nil)
         
         if err != nil {
             fmt.Printf("error creating request: %s\n", err)

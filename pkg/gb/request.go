@@ -19,7 +19,7 @@ func (e NotImplementedRequestMethodError) Error() string {
 
 // TODO: Implement headers
 type GbHttpReq struct {
-    uri string
+    url string
     method string 
     body []byte
 }
@@ -29,12 +29,12 @@ type GbReqOptions struct {
     NumOfConcurrentRequests int
 }
 
-func NewGbHttpReq(uri string, method string, body []byte) (*GbHttpReq, error) {
+func NewGbHttpReq(url string, method string, body []byte) (*GbHttpReq, error) {
     if method != Get {
         return &GbHttpReq {}, NotImplementedRequestMethodError("method '%s' is not implemented") 
     }
     return &GbHttpReq {
-        uri,
+        url,
         method,
         body,
     }, nil
@@ -49,7 +49,7 @@ func (g *GbHttpReq) SendRequests(options *GbReqOptions) {
     switch g.method {
     case Get:
         for i := 0; i < numOfRequests; i++ {
-            err := handleGet(g.uri)
+            err := handleGet(g.url)
             if err != nil {
                 fmt.Printf("error making get request: %s\n", err) 
             }
