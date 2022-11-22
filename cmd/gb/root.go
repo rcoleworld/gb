@@ -9,29 +9,30 @@ import (
 
 
 var ( 
-    uri string
-    numberOfRequests int
+    numOfConcurrentRequests int 
+    numOfRequests int
 )
 
 var rootCmd = &cobra.Command {
     Use: "gb [OPTIONS]",
     Short: "gb - a benchmarking tool similar to ab, written in golang",
     Long: "gb - a benchmarking tool similar to ab, written in golang (long version)",
+    Args: cobra.ExactArgs(1),
     Run: func(cmd *cobra.Command, args []string) {
-        uriFlag, _ := cmd.Flags().GetString("uri")
-        req, err :=  gb.NewGbHttpReq(uriFlag, gb.Get, nil)
+        requestsFlag, _ := cmd.Flags().GetInt(gb.RequestsFlag)
+        uri := args[0]
+        req, err :=  gb.NewGbHttpReq(uri, gb.Get, nil)
         
         if err != nil {
             fmt.Printf("error creating request: %s\n", err)
         }
 
-        req.SendRequest()
+        req.SendRequests(&gb.GbReqOptions{NumOfRequests: requestsFlag})
     },
 }
 
 func init() {
-    rootCmd.Flags().StringVarP(&uri, "uri", "u", "", gb.UriUsage)
-    rootCmd.MarkFlagRequired("uri")
+    rootCmd.Flags().IntVarP(&numOfRequests, gb.RequestsFlag, "n", 1, gb.UriUsage)
 }
 
 func Execute() {

@@ -24,6 +24,11 @@ type GbHttpReq struct {
     body []byte
 }
 
+type GbReqOptions struct {
+    NumOfRequests int
+    NumOfConcurrentRequests int
+}
+
 func NewGbHttpReq(uri string, method string, body []byte) (*GbHttpReq, error) {
     if method != Get {
         return &GbHttpReq {}, NotImplementedRequestMethodError("method '%s' is not implemented") 
@@ -35,12 +40,19 @@ func NewGbHttpReq(uri string, method string, body []byte) (*GbHttpReq, error) {
     }, nil
 } 
 
-func (g *GbHttpReq) SendRequest() {
+func (g *GbHttpReq) SendRequests(options *GbReqOptions) {
+    numOfRequests := 1 
+    if options.NumOfRequests !=  0 {
+        numOfRequests = options.NumOfRequests
+    }
+
     switch g.method {
     case Get:
-        err := handleGet(g.uri)
-        if err != nil {
-            fmt.Printf("error making get request: %s\n", err) 
+        for i := 0; i < numOfRequests; i++ {
+            err := handleGet(g.uri)
+            if err != nil {
+                fmt.Printf("error making get request: %s\n", err) 
+            }
         }
     }
 }
