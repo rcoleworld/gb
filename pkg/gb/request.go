@@ -58,7 +58,12 @@ func (g *GbHttpReq) SendRequests(options *GbReqOptions) {
         wg := new(sync.WaitGroup)
         client := &http.Client {Timeout: time.Second * 4}
         for i := 0; i < numOfRequests; i += numOfConcurrentRequests {
-            wg.Add(numOfConcurrentRequests)
+            numLeft := numOfRequests - i
+            if numLeft < numOfConcurrentRequests {
+                wg.Add(numLeft)
+            } else {
+                wg.Add(numOfConcurrentRequests)
+            }
             for j := 0; j < numOfConcurrentRequests; j++ {
                 go get(g.url, client, wg, i + j)
             }
