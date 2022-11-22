@@ -1,9 +1,11 @@
 package gb
 
 import (
-    "fmt"
-    "io/ioutil"
-    "net/http"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"sync"
+	"time"
 )
 
 const (
@@ -17,7 +19,6 @@ func (e NotImplementedRequestMethodError) Error() string {
     return fmt.Sprintf("%s", string(e))
 }
 
-// TODO: Implement headers
 type GbHttpReq struct {
     url string
     method string 
@@ -46,36 +47,44 @@ func (g *GbHttpReq) SendRequests(options *GbReqOptions) {
         numOfRequests = options.NumOfRequests
     }
 
+    numOfConcurrentRequests := 1
+    if options.NumOfConcurrentRequests != 0 {
+        numOfConcurrentRequests = options.NumOfConcurrentRequests
+    }
+
     switch g.method {
     case Get:
-        for i := 0; i < numOfRequests; i++ {
-            err := handleGet(g.url)
-            if err != nil {
-                fmt.Printf("error making get request: %s\n", err) 
+        // TODO: fix this broken concurrency
+        wg := new(sync.WaitGroup)
+        client := &http.Client {Timeout: time.Second * 4}
+        for i := 0; i < numOfRequests; i += numOfConcurrentRequests {
+            wg.Add(numOfConcurrentRequests)
+            for j := 0; j < numOfConcurrentRequests; j++ {
+                go get(g.url, client, wg, i + j)
             }
+            wg.Wait()
         }
     }
 }
 
-func handleGet(uri string) error {
-    req, err := http.NewRequest(Get, uri, nil)
-    if err != nil  {
-        return err
-    }
+func get(url string, c *http.Client, w *sync.WaitGroup, num int) {
+    defer w.Done()
 
-    res, err:= http.DefaultClient.Do(req)
-
+    fmt.Printf("sending request %d\n", num)
+    res, err := c.Get(url)
     if err != nil {
-        return err
+        fmt.Printf("error: %s\n", err)
+        return 
     }
 
+    defer res.Body.Close()
     resBody, err := ioutil.ReadAll(res.Body)
 
     if err != nil {
-        return err
+        fmt.Printf("error: %s\n", err)
+        return
     }
 
-    fmt.Printf("response body: %s\n", resBody)
-    return nil
+    fmt.Printf("response body, %d: %s\n", num, resBody)
 }
 

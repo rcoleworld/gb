@@ -1,9 +1,12 @@
 package gb
 
 const (
-    UriUsage = "the uri to send requests to." 
+    RequestsUsage = "the number of requests to send"
+    ConcurrencyUsage = "the number of concurrent requests"
 )
 
 const (
     RequestsFlag = "requests"
+    ConcurrencyFlag = "concurrency"
 )
+
