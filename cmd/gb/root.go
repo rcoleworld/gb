@@ -21,7 +21,8 @@ var rootCmd = &cobra.Command {
     Run: func(cmd *cobra.Command, args []string) {
         requestsFlag, _ := cmd.Flags().GetInt(gb.RequestsFlag)
         concurrencyFlag, _ := cmd.Flags().GetInt(gb.ConcurrencyFlag)
-        // no need for number of concurre
+
+        // we will prevent concurrent requests to exceed total requests
         if concurrencyFlag > requestsFlag {
             fmt.Println(gb.ConcurrencyExceedsRequestsWarning)
             concurrencyFlag = requestsFlag
