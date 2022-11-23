@@ -54,22 +54,32 @@ func (g *GbHttpReq) SendRequests(options *GbReqOptions) {
 
     switch g.method {
     case Get:
-        // TODO: fix this broken concurrency
-        wg := new(sync.WaitGroup)
-        client := &http.Client {Timeout: time.Second * 4}
-        for i := 0; i < numOfRequests; i += numOfConcurrentRequests {
+        handleConcurrentGetRequests(g.url, numOfRequests, numOfConcurrentRequests)
+    }
+}
+
+func handleConcurrentGetRequests(url string, numOfRequests, numOfConcurrentRequests int) {
+    wg := new(sync.WaitGroup)
+    client := &http.Client {Timeout: time.Second * 4}
+    wg.Add(numOfConcurrentRequests)
+
+    goRoutineCounter := numOfConcurrentRequests 
+    for i := 0; i < numOfRequests; i++ {
+        if goRoutineCounter == 0 {
+            wg.Wait()
             numLeft := numOfRequests - i
             if numLeft < numOfConcurrentRequests {
+                goRoutineCounter = numLeft
                 wg.Add(numLeft)
             } else {
+                goRoutineCounter = numOfConcurrentRequests 
                 wg.Add(numOfConcurrentRequests)
             }
-            for j := 0; j < numOfConcurrentRequests; j++ {
-                go get(g.url, client, wg, i + j)
-            }
-            wg.Wait()
-        }
+        } 
+        go get(url, client, wg, i)
+        goRoutineCounter--
     }
+    wg.Wait()
 }
 
 func get(url string, c *http.Client, w *sync.WaitGroup, num int) {

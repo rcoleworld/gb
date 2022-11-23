@@ -12,6 +12,7 @@ var (
     numOfRequests int
 )
 
+
 var rootCmd = &cobra.Command {
     Use: "gb [url] [OPTIONS]",
     Short: "gb - a benchmarking tool similar to ab, written in golang",
@@ -20,6 +21,11 @@ var rootCmd = &cobra.Command {
     Run: func(cmd *cobra.Command, args []string) {
         requestsFlag, _ := cmd.Flags().GetInt(gb.RequestsFlag)
         concurrencyFlag, _ := cmd.Flags().GetInt(gb.ConcurrencyFlag)
+        // no need for number of concurre
+        if concurrencyFlag > requestsFlag {
+            fmt.Println(gb.ConcurrencyExceedsRequestsWarning)
+            concurrencyFlag = requestsFlag
+        }
         url := args[0]
         req, err :=  gb.NewGbHttpReq(url, gb.Get, nil)
         
