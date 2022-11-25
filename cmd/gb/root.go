@@ -1,15 +1,19 @@
 package gb
 
 import (
-    "fmt"
-    "os"
-    "github.com/spf13/cobra"
-    "github.com/rcoleworld/gb/pkg/gb"
+	"fmt"
+	"os"
+	"strings"
+
+	"github.com/rcoleworld/gb/pkg/gb"
+	"github.com/spf13/cobra"
 )
 
 var ( 
     numOfConcurrentRequests int 
     numOfRequests int
+    requestMethod string
+    requestBody string
 )
 
 
@@ -21,14 +25,28 @@ var rootCmd = &cobra.Command {
     Run: func(cmd *cobra.Command, args []string) {
         requestsFlag, _ := cmd.Flags().GetInt(gb.RequestsFlag)
         concurrencyFlag, _ := cmd.Flags().GetInt(gb.ConcurrencyFlag)
+        requestMethodFlag, _ := cmd.Flags().GetString(gb.RequestMethodFlag)
+        requestBodyFlag, _ := cmd.Flags().GetString(gb.RequestBodyFlag)
 
-        // we will prevent concurrent requests to exceed total requests
+        requestMethodFlag = strings.ToUpper(requestMethodFlag)
+
+        if requestMethodFlag != gb.Get && requestMethodFlag != gb.Post {
+            fmt.Printf("Invalid request method: %s. allowed: GET, POST", requestMethodFlag)
+            return
+        }
+
+        if requestMethodFlag == gb.Get && requestBodyFlag != "" {
+            fmt.Printf("cannot have a request body for method: %s\n", requestMethodFlag)
+            return
+        }
+
+       // we will prevent concurrent requests to exceed total requests for now
         if concurrencyFlag > requestsFlag {
             fmt.Println(gb.ConcurrencyExceedsRequestsWarning)
             concurrencyFlag = requestsFlag
         }
         url := args[0]
-        req, err :=  gb.NewGbHttpReq(url, gb.Get, nil)
+        req, err :=  gb.NewGbHttpReq(url, requestMethodFlag, []byte(requestBodyFlag))
         
         if err != nil {
             fmt.Printf("error creating request: %s\n", err)
@@ -41,6 +59,8 @@ var rootCmd = &cobra.Command {
 func init() {
     rootCmd.Flags().IntVarP(&numOfRequests, gb.RequestsFlag, "n", 1, gb.RequestsUsage)
     rootCmd.Flags().IntVarP(&numOfConcurrentRequests, gb.ConcurrencyFlag, "c", 1, gb.ConcurrencyUsage)
+    rootCmd.Flags().StringVarP(&requestMethod, gb.RequestMethodFlag, "m", gb.Get , gb.RequestMethodUsage)
+    rootCmd.Flags().StringVarP(&requestBody, gb.RequestBodyFlag, "b", "", gb.RequestBodyUsage)
 }
 
 func Execute() {
