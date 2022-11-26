@@ -32,8 +32,8 @@ func get(g *GbHttpReq, c *http.Client, w *sync.WaitGroup, num int) {
 func post(g *GbHttpReq, c *http.Client, w *sync.WaitGroup, num int) {
     defer w.Done()
 
-    fmt.Printf("sending request %d\n", num)
-    res, err := c.Post(g.url, "application/json", bytes.NewBuffer(g.body))
+    fmt.Printf("sending request %d with body %s\n", num, string(g.body))
+    res, err := c.Post(g.url, g.contentType, bytes.NewBuffer(g.body))
     if err != nil {
         fmt.Printf("error: %s\n", err)
         return 

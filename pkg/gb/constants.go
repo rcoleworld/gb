@@ -5,6 +5,7 @@ const (
     ConcurrencyUsage = "the number of concurrent requests"
     RequestMethodUsage = "the http method to use. allowed: GET, POST" 
     RequestBodyUsage = "the http request body" 
+    ContentTypeUsage = "the http content type for POST/PUT" 
 )
 
 const (
@@ -12,6 +13,7 @@ const (
     ConcurrencyFlag = "concurrency"
     RequestMethodFlag = "request-method"
     RequestBodyFlag = "body"
+    ContentTypeFlag = "content-type" 
 )
 
 const (

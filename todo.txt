@@ -1,0 +1,11 @@
+TODO:
+- benchmarking
+- logging/log levels 
+- timeouts
+- PUT
+- files for PUT/POST
+- binary executable
+- unit tests
+
+DONE:
+- content type header X still needs testing

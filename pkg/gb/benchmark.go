@@ -1,0 +1,5 @@
+package gb
+
+func benchmark() {
+    
+}

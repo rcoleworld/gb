@@ -1,7 +1,7 @@
 package gb
 
 import (
-	"fmt"
+    "fmt"
 )
 
 const (
@@ -11,7 +11,7 @@ const (
 
 var SupportedMethods = map[string]bool{
     Get: true,
-    Post:true,
+    Post: true,
 }
 
 type NotImplementedRequestMethodError string
@@ -24,6 +24,7 @@ type GbHttpReq struct {
     url string
     method string 
     body []byte
+    contentType string
 }
 
 type GbReqOptions struct {
@@ -31,24 +32,31 @@ type GbReqOptions struct {
     NumOfConcurrentRequests int
 }
 
-func NewGbHttpReq(url string, method string, body []byte) (*GbHttpReq, error) {
+func NewGbHttpReq(url string, method string, body []byte, contentType string) (*GbHttpReq, error) {
     if !SupportedMethods[method] {
         return &GbHttpReq {}, NotImplementedRequestMethodError("method '%s' is not implemented") 
     }
+
     return &GbHttpReq {
         url,
         method,
         body,
+        contentType,
     }, nil
 } 
 
 func (g *GbHttpReq) SendRequests(options *GbReqOptions) {
-    if options.NumOfRequests ==  0 {
+    if options.NumOfRequests < 1 {
         options.NumOfRequests = 1 
     }
 
-    if options.NumOfConcurrentRequests == 0 {
+    if options.NumOfConcurrentRequests < 1 {
         options.NumOfConcurrentRequests = 1
+    }
+
+    if options.NumOfConcurrentRequests > options.NumOfRequests {
+        fmt.Println(ConcurrencyExceedsRequestsWarning)
+        options.NumOfConcurrentRequests = options.NumOfRequests
     }
 
     switch g.method {
