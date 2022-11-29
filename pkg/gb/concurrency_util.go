@@ -31,8 +31,10 @@ func handleConcurrentRequests(g *GbHttpReq, o *GbReqOptions, r requestFn) {
         go r(g, client, wg, i, benchmarkingData)
         goRoutineCounter--
     }
-    wg.Wait()
-    close(benchmarkingData)
+    go func() {
+        wg.Wait()
+        close(benchmarkingData)
+    }()
     benchmark(benchmarkingData)
 }
 
