@@ -1,7 +1,8 @@
 package gb
 
 import (
-    "fmt"
+	"fmt"
+	"time"
 )
 
 const (
@@ -45,7 +46,7 @@ func NewGbHttpReq(url string, method string, body []byte, contentType string) (*
     }, nil
 } 
 
-func (g *GbHttpReq) SendRequests(options *GbReqOptions) {
+func (g *GbHttpReq) SendRequests(options *GbReqOptions) []time.Duration {
     if options.NumOfRequests < 1 {
         options.NumOfRequests = 1 
     }
@@ -61,9 +62,11 @@ func (g *GbHttpReq) SendRequests(options *GbReqOptions) {
 
     switch g.method {
     case Get:
-        handleConcurrentRequests(g, options, get)
+        return handleConcurrentRequests(g, options, get)
     case Post:
-        handleConcurrentRequests(g, options, post)
+        return handleConcurrentRequests(g, options, post)
+    default:
+        return nil
     }
 }
 

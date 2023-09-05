@@ -57,12 +57,14 @@ var rootCmd = &cobra.Command {
             fmt.Printf("error creating request: %s\n", err)
         }
 
-        req.SendRequests(&gb.GbReqOptions{NumOfRequests: requestsFlag, NumOfConcurrentRequests: concurrencyFlag})
+        benchMarkingData := req.SendRequests(&gb.GbReqOptions{NumOfRequests: requestsFlag, NumOfConcurrentRequests: concurrencyFlag})
+
         output := &gb.GbOutput {
             Url: url,
             ConcurrencyLevel: concurrencyFlag,
-            TotalTime: 1.2,
-            CompleteRequests: 10,
+            TotalTime: gb.GetTotalRequestTime(benchMarkingData),
+            AverageRequestTime: gb.GetAverageRequestTime(benchMarkingData),
+            CompleteRequests: requestsFlag,
             FailedRequests: 0,
         }
         gb.GetOutput(output)

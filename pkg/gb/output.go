@@ -8,15 +8,15 @@ package gb
 * Licensed to The Apache Software Foundation, http://www.apache.org/
 *
 * Benchmarking localhost (be patient)
-* 
-* 
-* Server Software:        
+*
+*
+* Server Software:
 * Server Hostname:        localhost
 * Server Port:            1337
-* 
+*
 * Document Path:          /
 * Document Length:        25 bytes
-* 
+*
 * Concurrency Level:      10
 * Time taken for tests:   0.390 seconds
 * Complete requests:      10000
@@ -27,14 +27,14 @@ package gb
 * Time per request:       0.390 [ms] (mean)
 * Time per request:       0.039 [ms] (mean, across all concurrent requests)
 * Transfer rate:          3551.99 [Kbytes/sec] received
-* 
+*
 * Connection Times (ms)
 *               min  mean[+/-sd] median   max
 * Connect:        0    0   0.0      0       0
 * Processing:     0    0   0.1      0       6
 * Waiting:        0    0   0.1      0       3
 * Total:          0    0   0.1      0       6
-* 
+*
 * Percentage of the requests served within a certain time (ms)
 *   50%      0
 *   66%      0
@@ -45,11 +45,12 @@ package gb
 *   98%      1
 *   99%      1
 *  100%      6 (longest request)
-* 
-*/
+*
+ */
 
 import (
-    "fmt"
+	"fmt"
+	"time"
 )
 
 type GbOutput struct {
@@ -58,9 +59,10 @@ type GbOutput struct {
     // documentPath string
     // documentLength string // in bytes
     ConcurrencyLevel int
-    TotalTime float32
+    TotalTime time.Duration 
     CompleteRequests int
     FailedRequests int
+    AverageRequestTime time.Duration
     // totalTransfered int // in bytes
     // htmlTransfered int
     // requestsPerSecond float32
@@ -73,11 +75,12 @@ func GetOutput(o *GbOutput) {
     header := "This is GoBench, Version 0.10\nLicensed under the MIT license"
 
     fmt.Printf("%s\n", header)
-    fmt.Printf("Server Url:              %s\n", o.Url)
+    fmt.Printf("Server Url:               %s\n", o.Url)
 
-    fmt.Printf("Server port:             %d\n", o.ServerPort)
-    fmt.Printf("Concurrency Level:       %d\n", o.CompleteRequests)
-    fmt.Printf("Time taken for tests:    %f seconds\n", o.TotalTime)
-    fmt.Printf("Complete requests:       %d\n", o.CompleteRequests)
-    fmt.Printf("Failed requests:         %d\n", o.FailedRequests)
+    fmt.Printf("Server port:              %d\n", o.ServerPort)
+    fmt.Printf("Concurrency Level:        %d\n", o.CompleteRequests)
+    fmt.Printf("Time taken for tests:     %s\n", o.TotalTime)
+    fmt.Printf("Average time per request: %s\n", o.AverageRequestTime)
+    fmt.Printf("Complete requests:        %d\n", o.CompleteRequests)
+    fmt.Printf("Failed requests:          %d\n", o.FailedRequests)
 }

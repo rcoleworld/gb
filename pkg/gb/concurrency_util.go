@@ -8,18 +8,18 @@ import (
 
 type requestFn func(*GbHttpReq, *http.Client, *sync.WaitGroup, int, chan time.Duration)
 
-func handleConcurrentRequests(g *GbHttpReq, o *GbReqOptions, r requestFn) {
+func handleConcurrentRequests(g *GbHttpReq, o *GbReqOptions, r requestFn) []time.Duration {
     wg := new(sync.WaitGroup)
     client := &http.Client {Timeout: time.Second * 4}
     wg.Add(o.NumOfConcurrentRequests)
 
-    benchmarkingData := make(chan time.Duration)
+    benchmarkingData := make(chan time.Duration, o.NumOfRequests)
 
     goRoutineCounter := o.NumOfConcurrentRequests 
     for i := 0; i < o.NumOfRequests; i++ {
         if goRoutineCounter == 0 {
             wg.Wait()
-            numLeft := o.NumOfRequests- i
+            numLeft := o.NumOfRequests - i
             if numLeft < o.NumOfConcurrentRequests {
                 goRoutineCounter = numLeft
                 wg.Add(numLeft)
@@ -28,13 +28,17 @@ func handleConcurrentRequests(g *GbHttpReq, o *GbReqOptions, r requestFn) {
                 wg.Add(o.NumOfConcurrentRequests)
             }
         } 
-        go r(g, client, wg, i, benchmarkingData)
+        go func (i int) {
+            defer wg.Done()
+            r(g, client, wg, i, benchmarkingData)
+        }(i)
         goRoutineCounter--
     }
-    go func() {
-        wg.Wait()
-        close(benchmarkingData)
-    }()
-    benchmark(benchmarkingData)
+    wg.Wait()
+
+    close(benchmarkingData)
+
+    requestTimes := collectRequestTimes(benchmarkingData)
+    return requestTimes
 }
 
